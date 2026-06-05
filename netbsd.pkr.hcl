@@ -171,7 +171,7 @@ source "qemu" "qemu" {
 
   boot_steps = concat(
     [
-      ["1<wait20s>", "Boot normally"], // for x86-64, the boot delay is already over
+      ["1<wait35s>", "Boot normally"], // for x86-64, the boot delay is already over
       ["a<enter><wait5>", "Installation messages in English"]
     ],
 
@@ -188,12 +188,12 @@ source "qemu" "qemu" {
     var.correct_geometry_steps,
 
     [
-      ["b<enter><wait5>", "Use default partition sizes"],
+#     ["b<enter><wait5>", "Use default partition sizes"],
       ["x<enter><wait5>", "Partition sizes ok"],
       ["b<enter><wait10>", "Yes"],
     ],
 
-    var.bootblock_selection_steps,
+#    var.bootblock_selection_steps,
 
     [
       ["d<enter><wait>", "Custom installation"],
@@ -206,7 +206,7 @@ source "qemu" "qemu" {
       // Distribution set:
       ["x<enter><wait5>", "Install selected sets"],
 
-      ["a<enter><wait5m>", "Install from: install image media"],
+      ["a<enter><wait3m>", "Install from: install image media"],
 
       ["<enter><wait5>", "Hit enter to continue"],
 
@@ -259,7 +259,7 @@ source "qemu" "qemu" {
     var.pkgin_network_information_step,
 
     [
-      ["i<enter><wait5>", "Download via http -> ftp"],
+      #["i<enter><wait5>", "Download via http -> ftp"],
       ["x<enter><wait2m>", "Install pkgin and update package summary"],
       ["<enter><wait5>", "Hit enter to continue"],
 
@@ -302,6 +302,7 @@ source "qemu" "qemu" {
   iso_target_extension = local.iso_target_extension
   iso_target_path = local.iso_target_path
   iso_urls = [
+    "http://0.0.0.0:8080/${local.full_remote_path}",
     "https://cdn.netbsd.org/pub/NetBSD/${local.full_remote_path}",
     "https://archive.netbsd.org/pub/NetBSD-archive/${local.full_remote_path}",
     "https://ftp.netbsd.org/pub/NetBSD/${local.full_remote_path}",

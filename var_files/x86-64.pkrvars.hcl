@@ -1,4 +1,5 @@
-firmware = "bios-256k.bin"
+#firmware = "bios-256k.bin"
+firmware = "resources/ovmf.fd"
 post_install_disk_device = "/dev/dk0"
 
 architecture = {
@@ -12,7 +13,7 @@ keyboard_layout_steps = [
 ]
 
 correct_geometry_steps = [
-  ["a<enter><wait5>", "This is the correct geometry"]
+  ["b<enter><wait5>", "This is the correct geometry"]
 ]
 
 bootblock_selection_steps = [
