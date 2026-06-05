@@ -222,7 +222,7 @@ source "qemu" "qemu" {
       ["${var.root_password}<enter><wait5>", "Retype new password"],
     ],
 
-    var.generate_entropy_steps,
+    // var.generate_entropy_steps,
 
     [
       // Add a user
@@ -322,7 +322,7 @@ source "qemu" "qemu" {
 packer {
   required_plugins {
     qemu = {
-      version = "~> 1.0.8"
+      version = ">= 1.1.4"
       source = "github.com/hashicorp/qemu"
     }
   }
