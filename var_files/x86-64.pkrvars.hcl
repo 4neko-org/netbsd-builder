@@ -1,6 +1,6 @@
 #firmware = "bios-256k.bin"
 firmware = "resources/ovmf.fd"
-post_install_disk_device = "/dev/dk0"
+post_install_disk_device = "/dev/dk1"
 
 architecture = {
   name = "x86-64"

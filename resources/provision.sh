@@ -10,16 +10,16 @@ setup_path() {
 }
 
 install_extra_packages() {
-  pkgin -y install bash curl rsync sudo, openssl
+  pkgin -y install bash curl rsync sudo openssl git
   pkgin -y clean
 }
 
 setup_ld(){
-  /etc/ld.so.conf <<< /usr/pkg/lib <<<EOF
+  touch /etc/ld.so.conf
+  echo "/usr/pkg/lib" >> /etc/ld.so.conf
 }
 
 setup_sudo() {
-
 # ?todo don't allow $SECONDARY_USER user to perform priv ops.
 
   mkdir -p /usr/pkg/etc/sudoers.d
@@ -64,7 +64,9 @@ mount_resources_disk() {
 }
 
 install_authorized_keys() {
+  echo "install_authorized_keys"
   if [ -s "\$RESOURCES_MOUNT_PATH/KEYS" ]; then
+    echo "disk exists install_authorized_keys"
     mkdir -p "/home/$SECONDARY_USER/.ssh"
     cp "\$RESOURCES_MOUNT_PATH/KEYS" "/home/$SECONDARY_USER/.ssh/authorized_keys"
     chown "$SECONDARY_USER" "/home/$SECONDARY_USER/.ssh/authorized_keys"
@@ -80,6 +82,7 @@ mount_freya_disk() {
     fdisk -f -a -0 "\$disk"
     newfs "\${disk}a"
     mount "\${disk}a" "/home/$SECONDARY_USER/storage"
+    chown "freya:users" "/home/$SECONDARY_USER/storage"
   fi
 }
 
@@ -95,8 +98,9 @@ set_hostname() {
 
 setup_rust_rustup(){
   su $SECONDARY_USER -c "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y" -
-  su $SECONDARY_USER -c "rustup toolchain install nightly"
-  su $SECONDARY_USER -c "rustup toolchain install beta"
+  
+  su $SECONDARY_USER -c "PATH=\"\$HOME/.cargo/bin:\$PATH\" rustup toolchain install nightly"
+  su $SECONDARY_USER -c "PATH=\"\$HOME/.cargo/bin:\$PATH\" rustup toolchain install beta"
 }
 
 setup_freya_home_directory() {
@@ -106,7 +110,7 @@ setup_freya_home_directory() {
   mkdir "$work_directory/storage"
   chown "$permissions" "$work_directory/storage"
 
-  mkdir "$work_directory/.ssh
+  mkdir "$work_directory/.ssh"
   chown "$SECONDARY_USER" "$work_directory/.ssh"
 
   cat <<EOF >> $work_directory/env.toml
@@ -129,29 +133,38 @@ value = "/usr/pkg/lib"
 key = "OPENSSL_INCLUDE_DIR"
 value = "/usr/pkg/include"
 
+[[envs]]
+key = "PATH"
+value = "\${HOMEDIR}/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/X11R7/bin:/usr/pkg/bin:/usr/pkg/sbin:/usr/games:/usr/local/bin:/usr/local/sbin"
+
 # a default toolchain name. A value is a full toolchain name
 # channel-arch-hw-os-abi
 [[envs]]
 key = "FREYA_DEFAULT_TOOLCHAIN"
 value = "stable-x86_64-unknown-netbsd"
 EOF
+
   chown "$permissions" "$work_directory/env.toml"
 }
 
 setup_freyashell() {
-  cd /tmp
+  su $SECONDARY_USER -c "
 
+  PATH=\"\$HOME/.cargo/bin:\$PATH\"
+  export OPENSSL_DIR=/usr/pkg
+  export OPENSSL_LIB_DIR=/usr/pkg/lib
+  export OPENSSL_INCLUDE_DIR=/usr/pkg/include
+  
+  cd /home/$SECONDARY_USER
   git clone --branch v0.1.0 https://codeberg.org/4neko/freyashell.git
-
   cd ./freyashell
-
   cargo build --release
+  "
 
-  cp ./target/release/freyashell /usr/local/bin/freyashell
+  mkdir -p /usr/local/bin
+  cp /home/$SECONDARY_USER/freyashell/target/release/freyashell /usr/local/bin/freyashell
 
-  cd /tmp
-
-  rm -rf /tmp/freyashell
+  rm -rf /home/$SECONDARY_USER/freyashell
 
   # set the shell
   echo "/usr/local/bin/freyashell" >> /etc/shells
@@ -167,8 +180,15 @@ disable_some_things(){
 }
 
 prepare_image_of_var_dir(){
+  #service postfix stop
+  service syslogd stop
+  service dhcpcd stop
+
   cd /
   tar -cvzf var-image.tar.gz var
+
+  service syslogd start
+  service dhcpcd start
 }
 
 creating_custom_startup(){
@@ -222,7 +242,9 @@ configure_fstab() {
   cp /etc/fstab /tmp/fstab
   sed '/\t\/\tffs\t/s/rw/ro/' /tmp/fstab > /etc/fstab
   echo "tmpfs /var tmpfs   rw,-m1777,-sram%25" >> /etc/fstab
-  echo "tmpfs /home/$SECONDARY_USER/.ssh rw,-m1777,-sram%5" >> /etc/fstab
+  echo "tmpfs /home/$SECONDARY_USER/.ssh tmpfs rw,-m1777,-sram%5" >> /etc/fstab
+
+  mkdir -p "/mnt/resources"
 }
 
 setup_path

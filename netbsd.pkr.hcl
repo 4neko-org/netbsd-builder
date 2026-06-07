@@ -260,6 +260,8 @@ source "qemu" "qemu" {
 
     [
       #["i<enter><wait5>", "Download via http -> ftp"],
+      #["a<enter><wait5s>", "Additional packeages host"],
+      #["<del>ftp.jaist.ac.jp<enter><wait5s>", "Setting the mirror"],
       ["x<enter><wait2m>", "Install pkgin and update package summary"],
       ["<enter><wait5>", "Hit enter to continue"],
 
