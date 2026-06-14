@@ -139,6 +139,12 @@ variable "post_install_disk_device" {
   description = "The disk device to mount during post install"
 }
 
+variable "readonly_boot_media" {
+  default = true
+  description = "If true, the boot media will be mounted as readonly"
+}
+
+
 locals {
   iso_target_extension = "iso"
   iso_target_path = "packer_cache"
@@ -147,6 +153,8 @@ locals {
   image = "NetBSD-${var.os_version}-${var.architecture.image}.${local.iso_target_extension}"
   vm_name = "netbsd-${var.os_version}-${var.architecture.name}.qcow2"
   full_remote_path = "images/${var.os_version}/${local.image}?key=NetBSD"
+
+  readonly_boot_media = var.readonly_boot_media ? "on" : "off"
 }
 
 source "qemu" "qemu" {
@@ -292,11 +300,11 @@ source "qemu" "qemu" {
     ["-accel", "hvf"],
     ["-accel", "kvm"],
     ["-accel", "tcg"],
-    ["-device", "virtio-scsi-pci"],
-    ["-device", "scsi-hd,drive=drive0,bootindex=0"],
-    ["-device", "scsi-cd,drive=drive1,bootindex=1"],
+    ["-vga", "cirrus"],
+    ["-device", "virtio-blk-pci,drive=drive0,bootindex=0"],
+    ["-device", "virtio-blk-pci,drive=drive1,bootindex=1"],
     ["-drive", "if=none,file={{ .OutputDir }}/{{ .Name }},id=drive0,cache=writeback,discard=ignore,format=qcow2"],
-    ["-drive", "if=none,file=${local.iso_full_target_path},id=drive1,media=disk,format=raw,readonly=on"],
+    ["-drive", "if=none,file=${local.iso_full_target_path},id=drive1,media=disk,format=raw,readonly=${local.readonly_boot_media}"],
     ["-netdev", "user,id=user.0,hostfwd=tcp::{{ .SSHHostPort }}-:22,ipv6=off"]
   ]
 
