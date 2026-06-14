@@ -13,6 +13,6 @@ AcceptEnv *
 EOF
 }
 
-dkctl sd0 makewedges
+dkctl ld0 makewedges
 mount "$DISK_DEVICE" /mnt
 configure_ssh

@@ -55,7 +55,7 @@ RESOURCES_MOUNT_PATH='/mnt/resources'
 
 mount_resources_disk() {
   # get the last disk
-  disk="/dev/\$(sysctl -n hw.disknames | grep -o 'ld0')"
+  disk="/dev/\$(sysctl -n hw.disknames | grep -o 'ld1')"
 
   if [ -n "\$disk" ]; then
     mkdir -p "\$RESOURCES_MOUNT_PATH"
@@ -75,7 +75,7 @@ install_authorized_keys() {
 }
 
 mount_freya_disk() {
-  disk="/dev/\$(sysctl -n hw.disknames | grep -o 'ld1')"
+  disk="/dev/\$(sysctl -n hw.disknames | grep -o 'ld2')"
 
   if [ -n "\$disk" ]; then
     fdisk -f -i "\$disk"

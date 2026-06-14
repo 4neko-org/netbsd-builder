@@ -179,7 +179,7 @@ source "qemu" "qemu" {
 
   boot_steps = concat(
     [
-      ["1<wait35s>", "Boot normally"], // for x86-64, the boot delay is already over
+      ["1<wait40s>", "Boot normally"], // for x86-64, the boot delay is already over
       ["a<enter><wait5>", "Installation messages in English"]
     ],
 
@@ -302,7 +302,8 @@ source "qemu" "qemu" {
     ["-accel", "tcg"],
     ["-vga", "cirrus"],
     ["-device", "virtio-blk-pci,drive=drive0,bootindex=0"],
-    ["-device", "virtio-blk-pci,drive=drive1,bootindex=1"],
+    ["-device", "virtio-scsi-pci"],
+    ["-device", "scsi-cd,drive=drive1,bootindex=1"],
     ["-drive", "if=none,file={{ .OutputDir }}/{{ .Name }},id=drive0,cache=writeback,discard=ignore,format=qcow2"],
     ["-drive", "if=none,file=${local.iso_full_target_path},id=drive1,media=disk,format=raw,readonly=${local.readonly_boot_media}"],
     ["-netdev", "user,id=user.0,hostfwd=tcp::{{ .SSHHostPort }}-:22,ipv6=off"]
