@@ -3,7 +3,7 @@ firmware = "resources/ovmf.fd"
 post_install_disk_device = "/dev/dk1"
 
 architecture = {
-  name = "x86-64"
+  name = "x86_64"
   image = "amd64"
   qemu = "x86_64"
 }
