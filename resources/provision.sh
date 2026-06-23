@@ -35,8 +35,15 @@ configure_boot_flags() {
   if [ -f /boot.cfg ]; then
     sed -i -E 's/timeout=.+/timeout=0/' /boot.cfg
   else
-    echo 'timeout=0' > /boot.cfg
+    echo 'timeout=0' >> /boot.cfg
   fi
+  echo 'consdev=com0,115200' >> /boot.cfg
+}
+
+configure_pre_login_message(){
+  sed '/(%h) (%t)/s/\\r\\n\\r\\n/ FREYABOOTREADY\\r\\n\\r\\n/' /etc/gettytab > /tmp/gettytab
+  rm /etc/gettytab
+  mv /tmp/gettytab /etc/gettytab
 }
 
 configure_ssh() {
@@ -252,6 +259,7 @@ install_extra_packages
 setup_ld
 setup_sudo
 configure_boot_flags
+configure_pre_login_message
 configure_boot_scripts
 configure_ssh
 set_hostname
