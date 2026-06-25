@@ -109,7 +109,7 @@ Q
 EOF2
 
     disklabel \$disk
-    swapon \$disk
+    swapon \${disk}a
   fi
 }
 
