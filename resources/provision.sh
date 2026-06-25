@@ -99,7 +99,7 @@ format_swap() {
   if [ -n "\$disk" ]; then
     dd if=/dev/zero of=\$disk bs=1m count=5
     disklabel -i \$disk << EOF2
-a
+d
 swap
 
 $
@@ -109,7 +109,7 @@ Q
 EOF2
 
     disklabel \$disk
-    swapon \${disk}a
+    swapon \${disk}d
   fi
 }
 
