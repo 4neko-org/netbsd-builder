@@ -63,6 +63,10 @@ DISK2:
 An image of the disk non-formatted, large enough (to fit the code and building) where 
 all the files received over freyashell will be installed. The VM will format and mount
 the disk manually.
+
+DISK3:
+An image of the disk non-formatted, large enough as you expect to have the swap in the system.
+Optional. If this disk is not added, the system will operate without swap.
 ```
 
 !!! Make sure that both disks are attached to VM because each is strictly binded by its order. 

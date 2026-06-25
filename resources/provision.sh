@@ -93,9 +93,30 @@ mount_freya_disk() {
   fi
 }
 
+format_swap() {
+  disk="/dev/\$(sysctl -n hw.disknames | grep -o 'ld3')"
+
+  if [ -n "\$disk" ]; then
+    dd if=/dev/zero of=\$disk bs=1m count=5
+    disklabel -i \$disk << EOF2
+a
+swap
+
+$
+W
+y
+Q
+EOF2
+
+    disklabel \$disk
+    swapon \$disk
+  fi
+}
+
 mount_resources_disk
 install_authorized_keys
 mount_freya_disk
+format_swap
 EOF
 }
 
@@ -246,8 +267,9 @@ rm /tmp/mountcritlocal
 }
 
 configure_fstab() {
-  cp /etc/fstab /tmp/fstab
-  sed '/\t\/\tffs\t/s/rw/ro/' /tmp/fstab > /etc/fstab
+  #cp /etc/fstab /tmp/fstab
+  sed -i '/\t\/\tffs\t/s/rw/ro/' /etc/fstab
+  sed -i '/none\tswap\t/d' /etc/fstab
   echo "tmpfs /var tmpfs   rw,-m1777,-sram%25" >> /etc/fstab
   echo "tmpfs /home/$SECONDARY_USER/.ssh tmpfs rw,-m1777,-sram%5" >> /etc/fstab
 
