@@ -62,9 +62,10 @@ RESOURCES_MOUNT_PATH='/mnt/resources'
 
 mount_resources_disk() {
   # get the last disk
-  disk="/dev/\$(sysctl -n hw.disknames | grep -o 'ld1')"
+  disk="\$(sysctl -n hw.disknames | grep -o 'ld1')"
 
   if [ -n "\$disk" ]; then
+    disk="/dev/\$disk"
     mkdir -p "\$RESOURCES_MOUNT_PATH"
     mount_msdos "\$disk" "\$RESOURCES_MOUNT_PATH"
   fi
@@ -82,9 +83,10 @@ install_authorized_keys() {
 }
 
 mount_freya_disk() {
-  disk="/dev/\$(sysctl -n hw.disknames | grep -o 'ld2')"
+  disk="\$(sysctl -n hw.disknames | grep -o 'ld2')"
 
   if [ -n "\$disk" ]; then
+    disk="/dev/\$disk"
     fdisk -f -i "\$disk"
     fdisk -f -a -0 "\$disk"
     newfs "\${disk}a"
@@ -95,9 +97,10 @@ mount_freya_disk() {
 }
 
 format_swap() {
-  disk="/dev/\$(sysctl -n hw.disknames | grep -o 'ld3')"
+  disk="\$(sysctl -n hw.disknames | grep -o 'ld3')"
 
   if [ -n "\$disk" ]; then
+    disk="/dev/\$disk"
     dd if=/dev/zero of=\$disk bs=1m count=5
     disklabel -i \$disk << EOF2
 d
