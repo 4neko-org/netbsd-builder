@@ -89,7 +89,8 @@ mount_freya_disk() {
     fdisk -f -a -0 "\$disk"
     newfs "\${disk}a"
     mount "\${disk}a" "/home/$SECONDARY_USER/storage"
-    chown "freya:users" "/home/$SECONDARY_USER/storage"
+    cp -r /home/$SECONDARY_USER/.cargo /home/$SECONDARY_USER/storage/.cargo
+    chown -R "freya:users" "/home/$SECONDARY_USER/storage"
   fi
 }
 
@@ -142,12 +143,16 @@ setup_freya_home_directory() {
   chown "$SECONDARY_USER" "$work_directory/.ssh"
 
   cat <<EOF >> $work_directory/env.toml
+[[envs]]
+key = "CARGO_HOME"
+value = "/home/$SECONDARY_USER/storage/.cargo"
+
 # if system supports RUSTUP, then a path to the rustup binary dir
 # should be set. It uses the same path to access cargo and switch 
 # between channels.
 [[envs]]
 key = "FREYA_RUSTUP_DIR_PATH"
-value = "\${HOMEDIR}/.cargo/bin"
+value = "\${CARGO_HOME}/bin"
 
 [[envs]]
 key = "OPENSSL_DIR"
@@ -184,7 +189,7 @@ setup_freyashell() {
   export OPENSSL_INCLUDE_DIR=/usr/pkg/include
   
   cd /home/$SECONDARY_USER
-  git clone --depth 1 --branch v0.1.7 https://codeberg.org/4neko/freyashell.git
+  git clone --depth 1 --branch v0.1.8 https://codeberg.org/4neko/freyashell.git
   cd ./freyashell
   cargo build --release
   "
