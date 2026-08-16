@@ -98,6 +98,12 @@ variable "root_password_pre_steps" {
   description = "A few boot steps needed before entering the root password"
 }
 
+variable "key_compiler_tools" {
+  default = "f"
+  type = string
+  description = "The key used to select the compiler tools set"
+}
+
 variable "key_x11_sets" {
   default = "n"
   type = string
@@ -206,7 +212,7 @@ source "qemu" "qemu" {
     [
       ["d<enter><wait>", "Custom installation"],
       // Distribution set:
-      ["f<enter><wait5>", "Compiler tools"],
+      ["${var.key_compiler_tools}<enter><wait5>", "Compiler tools"],
       ["${var.key_x11_sets}<enter><wait5>", "X11 sets"],
       // X11 sets:
       ["f<enter><wait5>", "Select all of the above sets"],
