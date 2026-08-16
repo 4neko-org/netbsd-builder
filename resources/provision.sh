@@ -217,14 +217,14 @@ disable_some_things(){
 
 prepare_image_of_var_dir(){
   #service postfix stop
-  service syslogd stop
-  service dhcpcd stop
+  #service syslogd stop
+  #service dhcpcd stop
 
   cd /
   tar -cvzf var-image.tar.gz var
 
-  service syslogd start
-  service dhcpcd start
+  #service syslogd start
+  #service dhcpcd start
 }
 
 creating_custom_startup(){
@@ -282,6 +282,8 @@ configure_fstab() {
   echo "tmpfs /home/$SECONDARY_USER/.ssh tmpfs rw,-m1777,-sram%5" >> /etc/fstab
 
   mkdir -p "/mnt/resources"
+
+  echo "done"
 }
 
 setup_path
