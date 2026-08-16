@@ -17,8 +17,10 @@ minimize_disk() {
 minimize_swap() {
   swap_device=$(swapctl -l | awk '!/^Device/ { print $1 }')
   swapctl -d "$swap_device"
-  dd if=/dev/zero of="/dev/r${swap_device#/dev/}" bs=1048576 || :
+  dd if=/dev/zero of="$swap_device" bs=1048576 || :
 }
+
+echo "Cleanup script"
 
 setup_path
 minimize_disk

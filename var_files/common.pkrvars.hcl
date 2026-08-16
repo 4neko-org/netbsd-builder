@@ -1,6 +1,6 @@
 memory = 4096
 cpus = 2
-disk_size = "12G"
+disk_size = "18G"
 root_password = "runner"
 secondary_user_password = "freya"
 secondary_user_username = "freya"
