@@ -40,11 +40,6 @@ configure_boot_flags() {
   echo 'consdev=com0,115200' >> /boot.cfg
 }
 
-configure_pre_login_message(){
-  sed '/(%h) (%t)/s/\\r\\n\\r\\n/ FREYABOOTREADY\\r\\n\\r\\n/' /etc/gettytab > /tmp/gettytab
-  rm /etc/gettytab
-  mv /tmp/gettytab /etc/gettytab
-}
 
 configure_ssh() {
   cp /etc/ssh/sshd_config /tmp/sshd_config
@@ -117,6 +112,14 @@ EOF2
   fi
 }
 
+# based on the https://jpmens.net/2019/12/18/ip-address-of-machine-on-console/
+generate_gettytab() {
+  cp /root/gettytab /tmp/gettytab
+  ip_msg="\$(ifconfig vioif0 | awk '/inet / { print \$2 }' | cut -d '/' -f 1)"
+  sed -i '/(%h) (%t)/s/\\r\\n\\r\\n/ FREYABOOTREADY\\r\\n\\r\\nFREYA>IP4>'"\${ip_msg}"'\\r\\n/' /tmp/gettytab
+}
+
+generate_gettytab
 mount_resources_disk
 install_authorized_keys
 mount_freya_disk
@@ -133,6 +136,7 @@ setup_rust_rustup(){
   
   su $SECONDARY_USER -c "PATH=\"\$HOME/.cargo/bin:\$PATH\" rustup toolchain install nightly"
   su $SECONDARY_USER -c "PATH=\"\$HOME/.cargo/bin:\$PATH\" rustup toolchain install beta"
+  su $SECONDARY_USER -c "PATH=\"\$HOME/.cargo/bin:\$PATH\" rustup component add rust-analyzer"
 }
 
 setup_freya_home_directory() {
@@ -156,6 +160,10 @@ value = "/home/$SECONDARY_USER/storage/.cargo"
 [[envs]]
 key = "FREYA_RUSTUP_DIR_PATH"
 value = "\${CARGO_HOME}/bin"
+
+[[envs]]
+key = "CARGO_INSTALL_ROOT"
+value = "\${HOMEDIR}/.cargo"
 
 [[envs]]
 key = "OPENSSL_DIR"
@@ -192,15 +200,15 @@ setup_freyashell() {
   export OPENSSL_INCLUDE_DIR=/usr/pkg/include
   
   cd /home/$SECONDARY_USER
-  git clone --depth 1 --branch v0.1.8 https://codeberg.org/4neko/freyashell.git
-  cd ./freyashell
-  cargo build --release
+  git clone --depth 1 --branch v0.1.20 https://codeberg.org/4neko/freya.git
+  cd ./freya
+  cargo build --bin freyashell --release
   "
 
   mkdir -p /usr/local/bin
-  cp /home/$SECONDARY_USER/freyashell/target/release/freyashell /usr/local/bin/freyashell
+  cp /home/$SECONDARY_USER/freya/target/release/freyashell /usr/local/bin/freyashell
 
-  rm -rf /home/$SECONDARY_USER/freyashell
+  rm -rf /home/$SECONDARY_USER/freya
 
   # set the shell
   echo "/usr/local/bin/freyashell" >> /etc/shells
@@ -283,6 +291,9 @@ configure_fstab() {
 
   mkdir -p "/mnt/resources"
 
+  mv /etc/gettytab /root/gettytab
+  ln -s /tmp/gettytab /etc/gettytab
+
   echo "done"
 }
 
@@ -291,7 +302,6 @@ install_extra_packages
 setup_ld
 setup_sudo
 configure_boot_flags
-configure_pre_login_message
 configure_boot_scripts
 configure_ssh
 set_hostname
