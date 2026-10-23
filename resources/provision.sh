@@ -113,13 +113,17 @@ EOF2
 }
 
 # based on the https://jpmens.net/2019/12/18/ip-address-of-machine-on-console/
-generate_gettytab() {
+configure_pre_login_message() {
   cp /root/gettytab /tmp/gettytab
   ip_msg="\$(ifconfig vioif0 | awk '/inet / { print \$2 }' | cut -d '/' -f 1)"
-  sed -i '/(%h) (%t)/s/\\r\\n\\r\\n/ FREYABOOTREADY\\r\\n\\r\\nFREYA>IP4>'"\${ip_msg}"'\\r\\n/' /tmp/gettytab
+  rustc_v=\$(su freya -c "/home/freya/.cargo/bin/rustc -V" | cut -d ' ' -f2)
+  rusta_v=\$(su freya -c "/home/freya/.cargo/bin/rust-analyzer -V")
+  sed -i '/(%h) (%t)/s/\\r\\n\\r\\n/ FREYABOOTREADY\\r\\n\\r\\nFREYA>IP4>'"\${ip_msg}"'\\r\\nFREYA>RUSTC>'"\${rustc_v}"'\\r\\nFREYA>RUSTANALYZER>'"\${rusta_v}"'\\r\\n/' /tmp/gettytab
+
+  #sed -i '/(%h) (%t)/s/\\r\\n\\r\\n/ FREYABOOTREADY\\r\\n\\r\\nFREYA>IP4>'"\${ip_msg}"'\\r\\n/' /tmp/gettytab
 }
 
-generate_gettytab
+configure_pre_login_message
 mount_resources_disk
 install_authorized_keys
 mount_freya_disk
