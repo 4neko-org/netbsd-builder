@@ -117,9 +117,10 @@ configure_pre_login_message() {
   cp /root/gettytab /tmp/gettytab
   ip_msg="\$(ifconfig vioif0 | awk '/inet / { print \$2 }' | cut -d '/' -f 1)"
   rustc_v=\$(su $SECONDARY_USER -c "/home/$SECONDARY_USER/.cargo/bin/rustc -V" | cut -d ' ' -f2)
+  rustcb_v=\$(su $SECONDARY_USER -c "/home/$SECONDARY_USER/.cargo/bin/rustc +beta --version" | cut -d ' ' -f2)
   rustcn_v=\$(su $SECONDARY_USER -c "/home/$SECONDARY_USER/.cargo/bin/rustc +nightly --version" | cut -d ' ' -f2)
-  rusta_v=\$(su $SECONDARY_USER -c "/home/$SECONDARY_USER/.cargo/bin/rust-analyzer -V")
-  sed -i '/(%h) (%t)/s/\\\\r\\\\n\\\\r\\\\n/ FREYABOOTREADY\\\\r\\\\nFREYA>IP4>'"\${ip_msg}"'\\\\r\\\\nFREYA>RUSTC>'"\${rustc_v}"'\\\\r\\\\nFREYA>RUSTC>'"\${rustcn_v}"'\\\\r\\\\nFREYA>RUSTANALYZER>'"\${rusta_v}"'\\\\r\\\\n/' /tmp/gettytab
+  rusta_v=\$(su $SECONDARY_USER -c "/home/$SECONDARY_USER/.cargo/bin/rust-analyzer -V | cut -w -f2-")
+  sed -i '/(%h) (%t)/s/\\\\r\\\\n\\\\r\\\\n/ FREYA>IP4>'"\${ip_msg}"'\\\\r\\\\nFREYA>RUSTC>'"\${rustc_v}"'\\\\r\\\\nFREYA>RUSTC>'"\${rustcb_v}"'\\\\r\\\\nFREYA>RUSTC>'"\${rustcn_v}"'\\\\r\\\\nFREYA>RUSTANALYZER>'"\${rusta_v}"'\\\\r\\\\nFREYA>BOOTREADY\\\\r\\\\n/' /tmp/gettytab
 
   #sed -i '/(%h) (%t)/s/\\r\\n\\r\\n/ FREYABOOTREADY\\r\\n\\r\\nFREYA>IP4>'"\${ip_msg}"'\\r\\n/' /tmp/gettytab
 }
