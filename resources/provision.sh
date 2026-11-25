@@ -120,7 +120,7 @@ configure_pre_login_message() {
   rustcb_v=\$(su $SECONDARY_USER -c "/home/$SECONDARY_USER/.cargo/bin/rustc +beta --version" | cut -d ' ' -f2)
   rustcn_v=\$(su $SECONDARY_USER -c "/home/$SECONDARY_USER/.cargo/bin/rustc +nightly --version" | cut -d ' ' -f2)
   rusta_v=\$(su $SECONDARY_USER -c "/home/$SECONDARY_USER/.cargo/bin/rust-analyzer -V | cut -w -f2-")
-  sed -i '/(%h) (%t)/s/\\\\r\\\\n\\\\r\\\\n/ FREYA>IP4>'"\${ip_msg}"'\\\\r\\\\nFREYA>RUSTC>'"\${rustc_v}"'\\\\r\\\\nFREYA>RUSTC>'"\${rustcb_v}"'\\\\r\\\\nFREYA>RUSTC>'"\${rustcn_v}"'\\\\r\\\\nFREYA>RUSTANALYZER>'"\${rusta_v}"'\\\\r\\\\nFREYA>BOOTREADY\\\\r\\\\n/' /tmp/gettytab
+  sed -i '/(%h) (%t)/s/\\\\r\\\\n\\\\r\\\\n/\\\\r\\\\nFREYA>IP4>'"\${ip_msg}"'\\\\r\\\\nFREYA>RUSTC>'"\${rustc_v}"'\\\\r\\\\nFREYA>RUSTC>'"\${rustcb_v}"'\\\\r\\\\nFREYA>RUSTC>'"\${rustcn_v}"'\\\\r\\\\nFREYA>RUSTANALYZER>'"\${rusta_v}"'\\\\r\\\\nFREYA>BOOTREADY\\\\r\\\\n/' /tmp/gettytab
 
   #sed -i '/(%h) (%t)/s/\\r\\n\\r\\n/ FREYABOOTREADY\\r\\n\\r\\nFREYA>IP4>'"\${ip_msg}"'\\r\\n/' /tmp/gettytab
 }
